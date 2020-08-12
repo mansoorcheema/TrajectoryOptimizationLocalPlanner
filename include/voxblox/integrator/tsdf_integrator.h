@@ -60,7 +60,7 @@ class TsdfIntegratorBase {
     float max_weight = 10000.0;
     bool voxel_carving_enabled = true;
     FloatingPoint min_ray_length_m = 0.1;
-    FloatingPoint max_ray_length_m = 6.0;
+    FloatingPoint max_ray_length_m = 8.0;
     bool use_const_weight = false;
     bool allow_clear = true;
     bool use_weight_dropoff = true;

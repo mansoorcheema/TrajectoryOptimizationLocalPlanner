@@ -3,10 +3,12 @@
 #include "voxblox/core/voxel.h"
 #include "voxblox/integrator/esdf_integrator.h"
 #include "voxblox/integrator/tsdf_integrator.h"
+#include <voxblox/mesh/mesh_integrator.h>
 #include "voxblox/io/layer_io.h"
 #include "voxblox/simulation/simulation_world.h"
 #include "voxblox/utils/evaluation_utils.h"
 #include "voxblox/utils/layer_utils.h"
+#include <voxblox/io/mesh_ply.h>
 
 #include <iostream>
 #include <fstream>
@@ -116,8 +118,23 @@ int main() {
     io::LoadLayer<TsdfVoxel>("/home/mansoor/tsdf_layer", &layer_from_file);
     Pointcloud ptcloud;
     Colors colors;
-    createColorPointcloudFromLayer(*layer_from_file, &ptcloud, &colors);
-    write_pointcloud_to_file("/home/mansoor/tsdf_pointcloud.txt",&ptcloud, &colors);
+//    createColorPointcloudFromLayer(*layer_from_file, &ptcloud, &colors);
+//    write_pointcloud_to_file("/home/mansoor/tsdf_pointcloud.txt",&ptcloud, &colors);
+    bool save_as_mesh = false;
+    if (save_as_mesh) {
+        std::shared_ptr<MeshLayer> mesh_layer;
+        mesh_layer.reset(new MeshLayer(layer_from_file->block_size()));
+        MeshIntegratorConfig mesh_config;
+        std::shared_ptr<MeshIntegrator<TsdfVoxel>> mesh_integrator;
+        mesh_integrator.reset(new MeshIntegrator<TsdfVoxel>(mesh_config, *layer_from_file,
+                                                            mesh_layer.get()));
+
+        constexpr bool kOnlyMeshUpdatedBlocks = false;
+        constexpr bool kClearUpdatedFlag = false;
+        mesh_integrator->generateMesh(kOnlyMeshUpdatedBlocks, kClearUpdatedFlag);
+
+        outputMeshLayerAsPly("/home/mansoor/tsdf_layer_mesh.ply",*mesh_layer);
+    }
     std::cout << "Done!" << std::endl;
     return 0;
 }
