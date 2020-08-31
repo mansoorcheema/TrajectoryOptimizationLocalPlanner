@@ -120,7 +120,7 @@ int main() {
     // Next, generate poses evenly spaced in a circle around the object.
     FloatingPoint radius = 6.0;
     FloatingPoint height = 2.0;
-    int num_poses = 20;  // static_cast<int>(200 * voxel_size_);
+    int num_poses = 30;  // static_cast<int>(200 * voxel_size_);
     poses_.reserve(num_poses);
 
     FloatingPoint max_angle = 2 * M_PI;
@@ -156,8 +156,12 @@ int main() {
 
 
     // Simple integrator
-    Layer<TsdfVoxel> simple_layer(voxel_size_, voxels_per_side_);
-    SimpleTsdfIntegrator simple_integrator(config, &simple_layer);
+    Layer<TsdfVoxel> obstacles_layer(voxel_size_, voxels_per_side_);
+    SimpleTsdfIntegrator obstacles_integrator(config, &obstacles_layer);
+
+    // free road space integrator
+    Layer<TsdfVoxel> free_space_layer(voxel_size_, voxels_per_side_);
+    SimpleTsdfIntegrator free_space_integrator(config, &free_space_layer);
 
     Eigen::Vector2i depth_camera_resolution_(Eigen::Vector2i(320, 240));
     FloatingPoint fov_h_rad_(2.61799);
@@ -177,29 +181,34 @@ int main() {
 
     // run ntegrator
     for (size_t i = 0; i < poses_.size(); i++) {
-        Pointcloud ptcloud, ptcloud_C;
+        Pointcloud ptcloud, ptcloud_C_free, ptcloud_C_obstacles ;
+        Pointcloud free_points, obstacles_points;
         Colors colors;
+        Colors free_colors, obstacles_colors;
 
         world_.getPointcloudFromTransform(poses_[i], depth_camera_resolution_,
                                           fov_h_rad_, max_dist_, &ptcloud, &colors);
-//        for (size_t i = 0; i < ptcloud.size(); ++i) {
-//            auto position = ptcloud[i];
-//            auto color = colors[i];
-//            if(render_road  && (color==road_color)) {
-//                myfile << position(0) << ";" << position(1) << ";" << position(2) << ";";
-//                myfile << (int) color.r << ";" << (int) color.g << ";" << (int) color.b << endl;
-//            }
-//
-//            if(render_obstacles  && !(color==road_color)) {
-//                myfile << position(0) << ";" << position(1) << ";" << position(2) << ";";
-//                myfile << (int) color.r << ";" << (int) color.g << ";" << (int) color.b << endl;
-//            }
-//        }
+        for (size_t i = 0; i < ptcloud.size(); ++i) {
+            auto position = ptcloud[i];
+            auto color = colors[i];
+            if(color==road_color) {
+                free_points.push_back(position);
+                free_colors.push_back(color);
+            }else {
+                obstacles_points.push_back(position);
+                obstacles_colors.push_back(color);
+            }
 
-        transformPointcloud(poses_[i].inverse(), ptcloud, &ptcloud_C);
+        }
+
+        transformPointcloud(poses_[i].inverse(), free_points, &ptcloud_C_free);
+        transformPointcloud(poses_[i].inverse(), obstacles_points, &ptcloud_C_obstacles);
 
 
-        simple_integrator.integratePointCloud(poses_[i], ptcloud_C, colors);
+        obstacles_integrator.integratePointCloud(poses_[i], ptcloud_C_obstacles, obstacles_colors);
+        free_space_integrator.integratePointCloud(poses_[i], ptcloud_C_free, free_colors);
+
+        cout<<"Integrated point cloud from pose "<< i+1<<"/"<<poses_.size()<<endl;
     }
 
 //    Pointcloud ptcloud;
@@ -219,7 +228,8 @@ int main() {
 //        myfile << (int) color.r << ";" << (int) color.g << ";" << (int) color.b << endl;
 //    }
 //    myfile.close();
-    voxblox::io::SaveLayer(simple_layer, "/home/mansoor/tsdf_layer");
+    voxblox::io::SaveLayer(obstacles_layer, "/home/mansoor/tsdf_obstacles_layer.layer");
+    voxblox::io::SaveLayer(free_space_layer, "/home/mansoor/tsdf_free_layer.layer");
     std::cout << "Done!" << std::endl;
     return 0;
 }

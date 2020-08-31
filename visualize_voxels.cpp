@@ -52,13 +52,23 @@ bool visualizeDistanceIntensityTsdfVoxels(const TsdfVoxel& voxel,
     return false;
 }
 
-bool visualizeDistanceIntensityEsdfVoxels(const EsdfVoxel& voxel,
-                                          const Point& /*coord*/,
-                                          double* intensity) {
-    CHECK_NOTNULL(intensity);
+bool visualizeDistanceIntensityEsdfVoxels(const EsdfVoxel& voxel, Color* color) {
+    //CHECK_NOTNULL(intensity);
     if (voxel.observed) {
-        *intensity = voxel.distance;
-        return true;
+        //*intensity = voxel.distance;
+        if(voxel.distance > 0 && voxel.distance < 2) {
+            //std::cout << voxel.distance << std::endl;
+            *color = Color::Green();
+            return true;
+        } else if(voxel.distance < 0) {
+            //std::cout << voxel.distance << std::endl;
+            *color = Color::Blue();
+            return true;
+        } else if(voxel.distance == 2) {
+            //std::cout << voxel.distance << std::endl;
+            *color = Color::Yellow();
+            return true;
+        }
     }
     return false;
 }
@@ -88,8 +98,7 @@ void createColorPointcloudFromLayer(
         for (size_t linear_index = 0; linear_index < num_voxels_per_block;
              ++linear_index) {
             Point coord = block.computeCoordinatesFromLinearIndex(linear_index);
-            if (visualizeTsdfVoxels(block.getVoxelByLinearIndex(linear_index), coord,
-                             &color)) {
+            if (visualizeDistanceIntensityEsdfVoxels(block.getVoxelByLinearIndex(linear_index), &color)) {
                 ptcloud->push_back(coord);
                 colors->push_back(color);
             }
@@ -114,27 +123,27 @@ void write_pointcloud_to_file(std::string filepath, Pointcloud *ptcloud, Colors*
 }
 
 int main() {
-    Layer<TsdfVoxel>::Ptr layer_from_file;
-    io::LoadLayer<TsdfVoxel>("/home/mansoor/tsdf_layer", &layer_from_file);
+    Layer<EsdfVoxel>::Ptr layer_from_file;
+    io::LoadLayer<EsdfVoxel>("/home/mansoor/esdf_obstacles_layer.layer", &layer_from_file);
     Pointcloud ptcloud;
     Colors colors;
-//    createColorPointcloudFromLayer(*layer_from_file, &ptcloud, &colors);
-//    write_pointcloud_to_file("/home/mansoor/tsdf_pointcloud.txt",&ptcloud, &colors);
-    bool save_as_mesh = false;
-    if (save_as_mesh) {
-        std::shared_ptr<MeshLayer> mesh_layer;
-        mesh_layer.reset(new MeshLayer(layer_from_file->block_size()));
-        MeshIntegratorConfig mesh_config;
-        std::shared_ptr<MeshIntegrator<TsdfVoxel>> mesh_integrator;
-        mesh_integrator.reset(new MeshIntegrator<TsdfVoxel>(mesh_config, *layer_from_file,
-                                                            mesh_layer.get()));
-
-        constexpr bool kOnlyMeshUpdatedBlocks = false;
-        constexpr bool kClearUpdatedFlag = false;
-        mesh_integrator->generateMesh(kOnlyMeshUpdatedBlocks, kClearUpdatedFlag);
-
-        outputMeshLayerAsPly("/home/mansoor/tsdf_layer_mesh.ply",*mesh_layer);
-    }
+    createColorPointcloudFromLayer(*layer_from_file, &ptcloud, &colors);
+    write_pointcloud_to_file("/home/mansoor/esdf_obstacles_pointcloud.txt",&ptcloud, &colors);
+//    bool save_as_mesh = false;
+//    if (save_as_mesh) {
+//        std::shared_ptr<MeshLayer> mesh_layer;
+//        mesh_layer.reset(new MeshLayer(layer_from_file->block_size()));
+//        MeshIntegratorConfig mesh_config;
+//        std::shared_ptr<MeshIntegrator<TsdfVoxel>> mesh_integrator;
+//        mesh_integrator.reset(new MeshIntegrator<TsdfVoxel>(mesh_config, *layer_from_file,
+//                                                            mesh_layer.get()));
+//
+//        constexpr bool kOnlyMeshUpdatedBlocks = false;
+//        constexpr bool kClearUpdatedFlag = false;
+//        mesh_integrator->generateMesh(kOnlyMeshUpdatedBlocks, kClearUpdatedFlag);
+//
+//        outputMeshLayerAsPly("/home/mansoor/tsdf_layer_obstacles.ply",*mesh_layer);
+//    }
     std::cout << "Done!" << std::endl;
     return 0;
 }

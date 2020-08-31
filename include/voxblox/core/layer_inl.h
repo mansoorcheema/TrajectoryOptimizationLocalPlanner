@@ -2,6 +2,7 @@
 #define VOXBLOX_CORE_LAYER_INL_H_
 
 #include <fstream>  // NOLINT
+#include<iostream>
 #include <limits>
 #include <string>
 #include <utility>
@@ -198,6 +199,9 @@ bool Layer<VoxelType>::addBlockFromProto(const BlockProto& block_proto,
     typename BlockType::Ptr block_ptr(new BlockType(block_proto));
     const BlockIndex block_index = getGridIndexFromOriginPoint<BlockIndex>(
         block_ptr->origin(), block_size_inv_);
+
+    //if(block_ptr->origin().y() < 0)
+    //std::cout<<"Block:" <<block_ptr->origin().x()<<std::endl;
     switch (strategy) {
       case BlockMergingStrategy::kProhibit:
         CHECK_EQ(block_map_.count(block_index), 0u)

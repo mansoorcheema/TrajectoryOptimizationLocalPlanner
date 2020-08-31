@@ -44,15 +44,19 @@ set("${PROJECT_NAME}_SRCS"
         include/voxblox/Layer.pb.cc
         )
 
-add_executable(voxblox_test main.cpp ${${PROJECT_NAME}_SRCS})
+add_executable(tsdf_from_pc tsdf_from_pc.cpp ${${PROJECT_NAME}_SRCS})
 add_executable(visualize_voxels visualize_voxels.cpp ${${PROJECT_NAME}_SRCS})
 add_executable(esdf_from_tsdf esdf_from_tsdf.cpp ${${PROJECT_NAME}_SRCS})
+add_executable(mapping EsdfMapping.cpp ${${PROJECT_NAME}_SRCS})
 
-target_link_libraries(voxblox_test Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROTOBUF_LIBRARY})
-target_include_directories(voxblox_test PUBLIC ${EIGEN3_INCLUDE_DIR} ${glog_INCLUDE_DIR})
+target_link_libraries(tsdf_from_pc Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROTOBUF_LIBRARY})
+target_include_directories(tsdf_from_pc PUBLIC ${EIGEN3_INCLUDE_DIR} ${glog_INCLUDE_DIR})
 
 target_link_libraries(visualize_voxels Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROTOBUF_LIBRARY})
 target_include_directories(visualize_voxels PUBLIC ${EIGEN3_INCLUDE_DIR} ${glog_INCLUDE_DIR})
 
 target_link_libraries(esdf_from_tsdf Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROTOBUF_LIBRARY})
 target_include_directories(esdf_from_tsdf PUBLIC ${EIGEN3_INCLUDE_DIR} ${glog_INCLUDE_DIR})
+
+target_link_libraries(mapping Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROTOBUF_LIBRARY})
+target_include_directories(mapping PUBLIC ${EIGEN3_INCLUDE_DIR} ${glog_INCLUDE_DIR})
