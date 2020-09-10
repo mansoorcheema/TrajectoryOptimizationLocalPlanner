@@ -1,0 +1,2 @@
+# TrajectoryOptimizationLocalPlanner
+3D Voxels and Semantics based continous motion planner. Uses 3D pointcloud and segmentation to create Voxels with semantic and sign distance field information and generate eucledean sign distance from voxel distance and use that to optimize a ploynomial based trajectory optimization problem. Developed in context of Autonomous Driving where using Lidar data along with camera images to combine geometric and sematic information for planning safe and efficient paths.
