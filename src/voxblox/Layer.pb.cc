@@ -2,7 +2,7 @@
 // source: Layer.proto
 
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
-#include "Layer.pb.h"
+#include "voxblox/Layer.pb.h"
 
 #include <algorithm>
 

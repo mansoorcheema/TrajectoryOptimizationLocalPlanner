@@ -2,7 +2,7 @@
 // source: Block.proto
 
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
-#include "Block.pb.h"
+#include "voxblox/Block.pb.h"
 
 #include <algorithm>
 
