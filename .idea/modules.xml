@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/voxblox_test.iml" filepath="$PROJECT_DIR$/.idea/voxblox_test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../TrajectoryOptimization-LocalPlanner/.idea/voxblox_test.iml" filepath="$PROJECT_DIR$/../TrajectoryOptimization-LocalPlanner/.idea/voxblox_test.iml" />
     </modules>
   </component>
 </project>

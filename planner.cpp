@@ -64,13 +64,13 @@ int main() {
     loco_.setDistanceAndGradientFunction(&getMapDistanceAndGradientVector);
     loco_.setMapResolution(esdf_map_->voxel_size());
 
-    double first_solve_cost = loco_.computeCollisionCostAndGradient(nullptr);
+    //double first_solve_cost = loco_.computeCollisionCostAndGradient(nullptr);
 
     Eigen::VectorXd x0, x;
     loco_.getParameterVector(&x0);
     x = x0;
     loco_.solveProblem();
-    double final_solve_cost = loco_.computeTotalCostAndGradients(nullptr);
+    double first_solve_cost = loco_.computeTotalCostAndGradients(nullptr);
 
     // Save success and Trajectory.
     mav_trajectory_generation::Trajectory trajectory;
