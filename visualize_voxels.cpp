@@ -16,7 +16,7 @@
 using namespace std;
 using namespace voxblox;  // NOLINT
 
-bool visualizeTsdfVoxels(const TsdfVoxel& voxel, const Point& /*coord*/,
+bool visualizeVoxels(const TsdfVoxel& voxel,
                                 Color* color) {
     CHECK_NOTNULL(color);
 //    if((int)voxel.color.r==255 && (int)voxel.color.g== 255 && (int)voxel.color.b == 255) {
@@ -51,7 +51,7 @@ bool visualizeDistanceIntensityTsdfVoxels(const TsdfVoxel& voxel,
     return false;
 }
 
-bool visualizeDistanceIntensityEsdfVoxels(const EsdfVoxel& voxel, Color* color) {
+bool visualizeVoxels(const EsdfVoxel& voxel, Color* color) {
     //CHECK_NOTNULL(intensity);
     if (voxel.observed) {
         //*intensity = voxel.distance;
@@ -69,7 +69,7 @@ bool visualizeDistanceIntensityEsdfVoxels(const EsdfVoxel& voxel, Color* color) 
             //std::cout << voxel.distance << std::endl;
             *color = Color::Red();
             return true;
-        } else if(voxel.distance == 2) {
+        } else if(voxel.distance >= 2) {
             //std::cout << voxel.distance << std::endl;
             *color = Color::Green();
             return true;
@@ -103,7 +103,7 @@ void createColorPointcloudFromLayer(
         for (size_t linear_index = 0; linear_index < num_voxels_per_block;
              ++linear_index) {
             Point coord = block.computeCoordinatesFromLinearIndex(linear_index);
-            if (visualizeDistanceIntensityEsdfVoxels(block.getVoxelByLinearIndex(linear_index), &color)) {
+            if (visualizeVoxels(block.getVoxelByLinearIndex(linear_index), &color)) {
                 ptcloud->push_back(coord);
                 colors->push_back(color);
             }
@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
     Layer<EsdfVoxel>::Ptr layer_from_file;
     std::string category="obstacles";
 
-    if(argc > 0) {
+    if(argc > 1) {
         category.assign(argv[1]);
     }
 
