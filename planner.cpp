@@ -50,7 +50,7 @@ double getMapDistanceAndGradientVector(
 
 int main() {
     Layer<EsdfVoxel>::Ptr layer_from_file;
-    io::LoadLayer<EsdfVoxel>("/home/mansoor/esdf_obstacles_layer.layer", &layer_from_file);
+    io::LoadLayer<EsdfVoxel>("../data/esdf_obstacles_layer.layer", &layer_from_file);
 
     // Planner.
     loco_planner::Loco<kN> loco_(kD) ;
@@ -70,7 +70,7 @@ int main() {
     loco_.getParameterVector(&x0);
     x = x0;
     loco_.solveProblem();
-    double first_solve_cost = loco_.computeTotalCostAndGradients(nullptr);
+    //double first_solve_cost = loco_.computeTotalCostAndGradients(nullptr);
 
     // Save success and Trajectory.
     mav_trajectory_generation::Trajectory trajectory;
