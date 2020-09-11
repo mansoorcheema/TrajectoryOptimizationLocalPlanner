@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(voxblox_test)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 #set(glog_INCLUDE_DIR /home/mansoor/Downloads/glog-master/build)
 #set(ceres_DIR /home/mansoor/Downloads/ceres-solver-1.14.0/build)
 #set(glog_DIR_HINT /home/mansoor/Downloads/glog-master/build)
@@ -69,11 +69,11 @@ add_executable(planning planner.cpp ${${PROJECT_NAME}_SRCS})
 target_link_libraries(tsdf_from_pc Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROJECT_NAME}_proto)
 #target_include_directories(tsdf_from_pc PUBLIC ${EIGEN3_INCLUDE_DIR} ${glog_INCLUDE_DIR})
 
-target_link_libraries(visualize_voxels Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROTOBUF_LIBRARIES} ${CERES_LIBRARIES})
-target_link_libraries(planning Eigen3::Eigen glog::glog protobuf::libprotobuf  ${PROJECT_NAME}_proto ${CERES_LIBRARIES})
+target_link_libraries(visualize_voxels Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROJECT_NAME}_proto ${CERES_LIBRARIES})
+target_link_libraries(planning Eigen3::Eigen glog::glog protobuf::libprotobuf  ${PROJECT_NAME}_proto ${CERES_LIBRARIES} "stdc++fs")
 #target_include_directories(visualize_voxels PUBLIC ${EIGEN3_INCLUDE_DIR} ${glog_INCLUDE_DIR})
 
-target_link_libraries(esdf_from_tsdf Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROTOBUF_LIBRARIES})
+target_link_libraries(esdf_from_tsdf Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROJECT_NAME}_proto)
 #target_include_directories(esdf_from_tsdf PUBLIC ${EIGEN3_INCLUDE_DIR} ${glog_INCLUDE_DIR})
 
 target_link_libraries(mapping Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROTOBUF_LIBRARIES})

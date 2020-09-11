@@ -101,13 +101,13 @@ int main() {
     // add cylinder as obstacle
     Point cylinder_center(0.0, 2.0, 0.0);
     FloatingPoint cylinder_radius = 2;
-    FloatingPoint cylinder_height = 2;
+    FloatingPoint cylinder_height = 4;
     world_.addObject(std::unique_ptr<Object>(new Cylinder(
             cylinder_center, cylinder_radius, cylinder_height, Color::Red())));
 
     // add road
     Point cube_center(0.0, 0.0, 0.0);
-    Point cube_size(25.0, 8.0, 0.2);
+    Point cube_size(30.0, 8.0, 0.2);
     Color road_color(121, 104, 120);
     world_.addObject(std::unique_ptr<Object>(new Cube(
             cube_center,cube_size, road_color)));
@@ -120,7 +120,7 @@ int main() {
     // Next, generate poses evenly spaced in a circle around the object.
     FloatingPoint radius = 6.0;
     FloatingPoint height = 2.0;
-    int num_poses = 30;  // static_cast<int>(200 * voxel_size_);
+    int num_poses = 40;  // static_cast<int>(200 * voxel_size_);
     poses_.reserve(num_poses);
 
     FloatingPoint max_angle = 2 * M_PI;
@@ -129,12 +129,12 @@ int main() {
     bool render_cameras = false;
     bool render_road = true;
     bool render_obstacles = true;
-
-    for (FloatingPoint angle = 0.0; angle < max_angle;
-         angle += angle_increment) {
+    bool write_pc = true;
+    Point position(-13., -1, 0.5);
+    for (int i=0;i<num_poses;i++) {
         // Generate a transformation to look at the center pose.
-        Point position(radius * sin(angle), radius * cos(angle), height);
-        Point facing_direction = cylinder_center - position;
+        position(0) += 0.5;
+        Point facing_direction (1.,0,0.0f);
 
         FloatingPoint desired_yaw = 0.0;
         if (std::abs(facing_direction.x()) > 1e-4 ||
@@ -157,11 +157,11 @@ int main() {
 
     // Simple integrator
     Layer<TsdfVoxel> obstacles_layer(voxel_size_, voxels_per_side_);
-    SimpleTsdfIntegrator obstacles_integrator(config, &obstacles_layer);
+    MergedTsdfIntegrator obstacles_integrator(config, &obstacles_layer);
 
     // free road space integrator
     Layer<TsdfVoxel> free_space_layer(voxel_size_, voxels_per_side_);
-    SimpleTsdfIntegrator free_space_integrator(config, &free_space_layer);
+    MergedTsdfIntegrator free_space_integrator(config, &free_space_layer);
 
     Eigen::Vector2i depth_camera_resolution_(Eigen::Vector2i(320, 240));
     FloatingPoint fov_h_rad_(2.61799);
@@ -178,7 +178,9 @@ int main() {
 //    ptcloud.push_back(p);
 //
 //    simple_integrator.integratePointCloud(t, ptcloud,clrs );
-
+    ofstream myfile;
+    if(write_pc)
+        myfile.open ("/home/mansoor/pointcloud.txt");
     // run ntegrator
     for (size_t i = 0; i < poses_.size(); i++) {
         Pointcloud ptcloud, ptcloud_C_free, ptcloud_C_obstacles ;
@@ -191,6 +193,11 @@ int main() {
         for (size_t i = 0; i < ptcloud.size(); ++i) {
             auto position = ptcloud[i];
             auto color = colors[i];
+
+            if (write_pc) {
+                myfile << position(0) << ";" << position(1) << ";" << position(2) << ";";
+                myfile << (int) color.r << ";" << (int) color.g << ";" << (int) color.b << endl;
+            }
             if(color==road_color) {
                 free_points.push_back(position);
                 free_colors.push_back(color);
@@ -210,7 +217,8 @@ int main() {
 
         cout<<"Integrated point cloud from pose "<< i+1<<"/"<<poses_.size()<<endl;
     }
-
+    if (write_pc)
+        myfile.close();
 //    Pointcloud ptcloud;
 //    Colors colors;
 //    createColorPointcloudFromLayer(simple_layer, &ptcloud, &colors );

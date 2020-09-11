@@ -11,11 +11,14 @@
 #include "voxblox/utils/layer_utils.h"
 #include <voxblox/io/mesh_ply.h>
 #include <loco_planner/loco.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
+#include <experimental/filesystem>
 #include "loco_planner/loco.h"
 
 using namespace std;
+namespace fs = std::experimental::filesystem;
 using namespace voxblox;  // NOLINT
 
 static constexpr int kN = 10;
@@ -57,8 +60,8 @@ int main() {
     // Map.
     esdf_map_.reset(new EsdfMap(layer_from_file));
 
-    Eigen::Vector3d  v(-5.0,2.0,2);
-    Eigen::Vector3d w(5.0,2.0,2);
+    Eigen::Vector3d  v(-11., -0.2, 0.5);
+    Eigen::Vector3d w(7.25, 1, 0.5);
     loco_.setupFromPositions(v, w, 3, 10.0);
 
     loco_.setDistanceAndGradientFunction(&getMapDistanceAndGradientVector);
@@ -66,9 +69,6 @@ int main() {
 
     //double first_solve_cost = loco_.computeCollisionCostAndGradient(nullptr);
 
-    Eigen::VectorXd x0, x;
-    loco_.getParameterVector(&x0);
-    x = x0;
     loco_.solveProblem();
     //double first_solve_cost = loco_.computeTotalCostAndGradients(nullptr);
 
@@ -79,12 +79,19 @@ int main() {
     // sample trajectory
     std::vector<Eigen::VectorXd> position;
 
-    trajectory.evaluateRange(trajectory.getMinTime(), trajectory.getMaxTime(), 1,
+    trajectory.evaluateRange(trajectory.getMinTime(), trajectory.getMaxTime(), 0.1,
                              mav_trajectory_generation::derivative_order::POSITION, &position);
 
+
+    fs::copy("/home/mansoor/pointcloud.txt","/home/mansoor/pointcloud_plan.txt",fs::copy_options::overwrite_existing);
+    std::ofstream myfile;
+    myfile.open ("/home/mansoor/pointcloud_plan.txt", std::ofstream::out | std::ofstream::app);
     for(auto p: position) {
+        myfile << p(0) << ";" << p(1) << ";" << p(2) << ";";
+        myfile << 0 << ";" << 0 << ";" << 255 << endl;
         std::cout<< p.head<3>()<<std::endl<<std::endl;
     }
+    myfile.close();
     std::cout << "Done!" << std::endl;
     return 0;
 }
