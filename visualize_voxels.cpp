@@ -55,6 +55,7 @@ bool visualizeVoxels(const EsdfVoxel& voxel, Color* color) {
     //CHECK_NOTNULL(intensity);
     if (voxel.observed) {
         //*intensity = voxel.distance;
+        //std::cout<<voxel.distance<<std::endl;
 
         if(voxel.distance  > 1  && voxel.distance < 2 ) {
             //std::cout << voxel.distance << std::endl;
@@ -131,7 +132,7 @@ void write_pointcloud_to_file(std::string filepath, Pointcloud *ptcloud, Colors*
 
 int main(int argc, char** argv) {
     Layer<EsdfVoxel>::Ptr layer_from_file;
-    std::string category="free";
+    std::string category="obstacles";
 
     if(argc > 1) {
         category.assign(argv[1]);
