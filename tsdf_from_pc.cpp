@@ -120,7 +120,7 @@ int main() {
     // Next, generate poses evenly spaced in a circle around the object.
     FloatingPoint radius = 6.0;
     FloatingPoint height = 2.0;
-    int num_poses = 40;  // static_cast<int>(200 * voxel_size_);
+    int num_poses = 20;  // static_cast<int>(200 * voxel_size_);
     poses_.reserve(num_poses);
 
     FloatingPoint max_angle = 2 * M_PI;
@@ -131,9 +131,11 @@ int main() {
     bool render_obstacles = true;
     bool write_pc = true;
     Point position(-13., -1, 0.5);
+    Point position2(-13., -1, 3);
     for (int i=0;i<num_poses;i++) {
         // Generate a transformation to look at the center pose.
-        position(0) += 0.5;
+        position(0) += 1;
+        position2(0) += 1;
         Point facing_direction (1.,0,0.0f);
 
         FloatingPoint desired_yaw = 0.0;
@@ -152,6 +154,7 @@ int main() {
                 Eigen::AngleAxis<FloatingPoint>(desired_yaw, Point::UnitZ());
 
         poses_.emplace_back(Transformation(rotation, position));
+        poses_.emplace_back(Transformation(rotation, position2));
     }
 
 

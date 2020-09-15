@@ -463,9 +463,9 @@ double Loco<N>::computeCollisionCostAndGradient(
           "loco/map_lookup");
       double c = 0.0;
       if (gradients != nullptr) {
-        c = computePotentialCostAndGradient(position, &d_c_d_f);
+        c = computeFreeCostAndGradient(position, &d_c_d_f);
       } else {
-        c = computePotentialCostAndGradient(position, nullptr);
+        c = computeFreeCostAndGradient(position, nullptr);
       }
       timer_map_lookup.Stop();
 
@@ -705,6 +705,36 @@ void Loco<N>::potentialGradientFunction(
     gradient_out->setZero(K_);
   }
 }
+template <int N>
+double Loco<N>::potentialFreeSpaceFunction(double distance) const {
+    double result = 0.0;
+    double d = distance - config_.robot_radius;
+
+    //if (d < 0) {
+    result = 0.5 * distance * distance;
+//  } else if (d <= config_.epsilon) {
+//    double epsilon_distance = d - config_.epsilon;
+//    result = 0.5 * 1.0 / config_.epsilon * epsilon_distance * epsilon_distance;
+//  } else {
+//    result = 0.0;
+//  }
+    return result;
+}
+
+template <int N>
+void Loco<N>::potentialFreeSpaceGradientFunction(
+        double distance, const Eigen::VectorXd& distance_gradient,
+        Eigen::VectorXd* gradient_out) const {
+    double d = distance - config_.robot_radius;
+
+    //if (d < 0) {
+    //*gradient_out = distance_gradient;
+    //} else if (d <= config_.epsilon) {
+    *gradient_out = (distance * distance_gradient);
+//  } else {
+//    gradient_out->setZero(K_);
+//  }
+}
 
 template <int N>
 double Loco<N>::computePotentialCostAndGradient(
@@ -725,6 +755,27 @@ double Loco<N>::computePotentialCostAndGradient(
     potentialGradientFunction(d, distance_gradient, gradient);
   }
   return c;
+}
+
+template <int N>
+double Loco<N>::computeFreeCostAndGradient(
+        const Eigen::VectorXd& position, Eigen::VectorXd* gradient) const {
+    Eigen::VectorXd distance_gradient(K_);
+    distance_gradient.setZero();
+    Eigen::VectorXd increment(K_);
+
+    double d;
+    if (gradient != nullptr) {
+        d = distance_and_gradient_function_(position, &distance_gradient);
+    } else {
+        d = distance_and_gradient_function_(position, nullptr);
+    }
+
+    double c = potentialFreeSpaceFunction(d);
+    if (gradient != nullptr) {
+        potentialFreeSpaceGradientFunction(d, distance_gradient, gradient);
+    }
+    return c;
 }
 
 template <int N>

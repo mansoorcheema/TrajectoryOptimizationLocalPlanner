@@ -25,14 +25,15 @@ static constexpr int kN = 10;
 static constexpr int kD = 3;
 
 std::shared_ptr<voxblox::EsdfMap> esdf_map_;
+std::shared_ptr<voxblox::EsdfMap> esdf_free_map_;
 
 double getMapDistanceAndGradient(
         const Eigen::Vector3d& position, Eigen::Vector3d* gradient) {
-    double distance = 0.0;
+    double distance = 3.0;
     const bool kInterpolate = false;
     if (!esdf_map_->getDistanceAndGradientAtPosition(position, kInterpolate,
                                                      &distance, gradient)) {
-        return 0.0;
+        return 3.0;
     }
     return distance;
 }
@@ -53,15 +54,15 @@ double getMapDistanceAndGradientVector(
 
 int main() {
     Layer<EsdfVoxel>::Ptr layer_from_file;
-    io::LoadLayer<EsdfVoxel>("/home/mansoor/esdf_obstacles_layer.layer", &layer_from_file);
+    io::LoadLayer<EsdfVoxel>("/home/mansoor/esdf_free_layer.layer", &layer_from_file);
 
     // Planner.
     loco_planner::Loco<kN> loco_(kD) ;
     // Map.
     esdf_map_.reset(new EsdfMap(layer_from_file));
 
-    Eigen::Vector3d  v(-7., -1, 0.5);
-    Eigen::Vector3d w(7.25, 1, 0.5);
+    Eigen::Vector3d  v(-7., -1.25, 2);
+    Eigen::Vector3d w(7.25, -1.5, 1);
     loco_.setupFromPositions(v, w, 3, 10.0);
 
     loco_.setDistanceAndGradientFunction(&getMapDistanceAndGradientVector);
@@ -87,10 +88,16 @@ int main() {
     fs::copy(point_cloud_path, point_cloud_trajectory,fs::copy_options::overwrite_existing);
     std::ofstream myfile;
     myfile.open (point_cloud_trajectory, std::ofstream::out | std::ofstream::app);
+
+    Eigen::VectorXd grad_a, gradient;
+
     for(auto p: position) {
         myfile << p(0) << ";" << p(1) << ";" << p(2) << ";";
         myfile << 0 << ";" << 0 << ";" << 255 << endl;
-        //std::cout<< p.head<3>()<<std::endl<<std::endl;
+
+
+        double cost_p = loco_.computeFreeCostAndGradient(p.head<3>(), &gradient);
+        std::cout<< cost_p<<std::endl<<std::endl;
     }
     myfile.close();
     std::cout << "Done!" << std::endl;
