@@ -131,7 +131,7 @@ void write_pointcloud_to_file(std::string filepath, Pointcloud *ptcloud, Colors*
 
 int main(int argc, char** argv) {
     Layer<EsdfVoxel>::Ptr layer_from_file;
-    std::string category="obstacles";
+    std::string category="free";
 
     if(argc > 1) {
         category.assign(argv[1]);

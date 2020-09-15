@@ -17,7 +17,7 @@ using namespace voxblox;  // NOLINT
 
 int main() {
     Layer<TsdfVoxel>::Ptr layer_from_file;
-    io::LoadLayer<TsdfVoxel>("/home/mansoor/tsdf_obstacles_layer.layer", &layer_from_file);
+    io::LoadLayer<TsdfVoxel>("/home/mansoor/tsdf_free_layer.layer", &layer_from_file);
 
     //save esdf layer
     // ESDF maps.
@@ -35,11 +35,11 @@ int main() {
 
     esdf_integrator.updateFromTsdfLayerBatch();
 
-    const bool esdf_success = io::SaveLayer(esdf_map.getEsdfLayer(), "/home/mansoor/esdf_obstacles_layer.layer");
+    const bool esdf_success = io::SaveLayer(esdf_map.getEsdfLayer(), "/home/mansoor/esdf_free_layer.layer");
 
     if (esdf_success == false) {
         throw std::runtime_error("Failed to save ESDF");
     }
-    std::cout << "Save Esdf from tsdf!" << std::endl;
+    std::cout << "Saved Esdf from tsdf!" << std::endl;
     return 0;
 }
