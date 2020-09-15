@@ -14,7 +14,7 @@ find_package(Ceres REQUIRED)
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CERES_INCLUDE_DIRS})
 #include_directories(${Eigen3_INCLUDE_DIR} /usr/local/include/eigen3/ ${glog_INCLUDE_DIR})
-include_directories(${EIGEN3_INCLUDE_DIR} /home/mansoor/Opensource/minkindr/minkindr/include ${GLOG_INCLUDE_DIR})
+include_directories(${EIGEN3_INCLUDE_DIR} /home/mansoor/Downloads/minkindr-master/minkindr/include ${GLOG_INCLUDE_DIR})
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 

@@ -53,14 +53,14 @@ double getMapDistanceAndGradientVector(
 
 int main() {
     Layer<EsdfVoxel>::Ptr layer_from_file;
-    io::LoadLayer<EsdfVoxel>("../data/esdf_obstacles_layer.layer", &layer_from_file);
+    io::LoadLayer<EsdfVoxel>("/home/mansoor/esdf_obstacles_layer.layer", &layer_from_file);
 
     // Planner.
     loco_planner::Loco<kN> loco_(kD) ;
     // Map.
     esdf_map_.reset(new EsdfMap(layer_from_file));
 
-    Eigen::Vector3d  v(-11., -0.2, 0.5);
+    Eigen::Vector3d  v(-7., -1, 0.5);
     Eigen::Vector3d w(7.25, 1, 0.5);
     loco_.setupFromPositions(v, w, 3, 10.0);
 
@@ -82,14 +82,15 @@ int main() {
     trajectory.evaluateRange(trajectory.getMinTime(), trajectory.getMaxTime(), 0.1,
                              mav_trajectory_generation::derivative_order::POSITION, &position);
 
-
-    fs::copy("/home/mansoor/pointcloud.txt","/home/mansoor/pointcloud_plan.txt",fs::copy_options::overwrite_existing);
+    std::string point_cloud_path = "/home/mansoor/pointcloud.txt";
+    std::string point_cloud_trajectory = point_cloud_path.substr(0,point_cloud_path.length()-4) + "_plan.txt";
+    fs::copy(point_cloud_path, point_cloud_trajectory,fs::copy_options::overwrite_existing);
     std::ofstream myfile;
-    myfile.open ("/home/mansoor/pointcloud_plan.txt", std::ofstream::out | std::ofstream::app);
+    myfile.open (point_cloud_trajectory, std::ofstream::out | std::ofstream::app);
     for(auto p: position) {
         myfile << p(0) << ";" << p(1) << ";" << p(2) << ";";
         myfile << 0 << ";" << 0 << ";" << 255 << endl;
-        std::cout<< p.head<3>()<<std::endl<<std::endl;
+        //std::cout<< p.head<3>()<<std::endl<<std::endl;
     }
     myfile.close();
     std::cout << "Done!" << std::endl;

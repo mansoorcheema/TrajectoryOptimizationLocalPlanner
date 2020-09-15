@@ -22,7 +22,7 @@ class Loco {
     int derivative_to_optimize =
         mav_trajectory_generation::derivative_order::JERK;
     double epsilon = 0.5;
-    double robot_radius = 0.5;
+    double robot_radius = 2;
     bool soft_goal_constraint = false;
     double w_d = 0.1;   // Smoothness cost weight.
     double w_c = 10.0;  // Collision cost weight.
