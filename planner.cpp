@@ -28,24 +28,24 @@ std::shared_ptr<voxblox::EsdfMap> esdf_map_;
 std::shared_ptr<voxblox::EsdfMap> esdf_free_map_;
 
 double getMapDistanceAndGradient(
-        const Eigen::Vector3d& position, Eigen::Vector3d* gradient) {
-    double distance = 3.0;
+        const Eigen::Vector3d& position, Eigen::Vector3d* gradient, std::shared_ptr<voxblox::EsdfMap> esdf_map, double d) {
+    double distance = d;
     const bool kInterpolate = false;
-    if (!esdf_map_->getDistanceAndGradientAtPosition(position, kInterpolate,
+    if (!esdf_map->getDistanceAndGradientAtPosition(position, kInterpolate,
                                                      &distance, gradient)) {
-        return 3.0;
+        return d;
     }
     return distance;
 }
 
 double getMapDistanceAndGradientVector(
-        const Eigen::VectorXd& position, Eigen::VectorXd* gradient) {
+        const Eigen::VectorXd& position, Eigen::VectorXd* gradient, std::shared_ptr<voxblox::EsdfMap> esdf_map, double d) {
     CHECK_EQ(position.size(), 3);
     if (gradient == nullptr) {
-        return getMapDistanceAndGradient(position, nullptr);
+        return getMapDistanceAndGradient(position, nullptr, esdf_map, d);
     }
     Eigen::Vector3d gradient_3d;
-    double distance = getMapDistanceAndGradient(position, &gradient_3d);
+    double distance = getMapDistanceAndGradient(position, &gradient_3d, esdf_map, d);
     *gradient = gradient_3d;
     return distance;
 }
@@ -53,19 +53,24 @@ double getMapDistanceAndGradientVector(
 
 
 int main() {
-    Layer<EsdfVoxel>::Ptr layer_from_file;
-    io::LoadLayer<EsdfVoxel>("/home/mansoor/esdf_free_layer.layer", &layer_from_file);
+    Layer<EsdfVoxel>::Ptr free_layer, obstacles_layer;
+    io::LoadLayer<EsdfVoxel>("/home/mansoor/esdf_free_layer.layer", &free_layer);
+    io::LoadLayer<EsdfVoxel>("/home/mansoor/esdf_obstacles_layer.layer", &obstacles_layer);
+    // Map.
+    esdf_map_.reset(new EsdfMap(obstacles_layer));
+    esdf_free_map_.reset(new EsdfMap(free_layer));
 
     // Planner.
     loco_planner::Loco<kN> loco_(kD) ;
-    // Map.
-    esdf_map_.reset(new EsdfMap(layer_from_file));
 
     Eigen::Vector3d  v(-7., -1.25, 2);
-    Eigen::Vector3d w(7.25, -1.5, 1);
+    Eigen::Vector3d w(10, -1.822, 1.425);
     loco_.setupFromPositions(v, w, 3, 10.0);
 
-    loco_.setDistanceAndGradientFunction(&getMapDistanceAndGradientVector);
+    double default_distance_obstacles = 0.0;// unknown area is considered obstacle.
+    double default_distance_free = 3.0;// free spacee is atleast that far.
+    loco_.setDistanceAndGradientFunction(std::bind(getMapDistanceAndGradientVector,std::placeholders::_1,std::placeholders::_2,esdf_map_, default_distance_obstacles));
+    loco_.setFreeDistanceAndGradientFunction(std::bind(getMapDistanceAndGradientVector,std::placeholders::_1,std::placeholders::_2,esdf_free_map_, default_distance_free));
     loco_.setMapResolution(esdf_map_->voxel_size());
 
     //double first_solve_cost = loco_.computeCollisionCostAndGradient(nullptr);
@@ -95,8 +100,7 @@ int main() {
         myfile << p(0) << ";" << p(1) << ";" << p(2) << ";";
         myfile << 0 << ";" << 0 << ";" << 255 << endl;
 
-
-        double cost_p = loco_.computeFreeCostAndGradient(p.head<3>(), &gradient);
+        double cost_p = loco_.computeFreePotentialCostAndGradient(p.head<3>(), &gradient);
         std::cout<< cost_p<<std::endl<<std::endl;
     }
     myfile.close();
