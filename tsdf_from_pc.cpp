@@ -112,6 +112,21 @@ int main() {
     world_.addObject(std::unique_ptr<Object>(new Cube(
             cube_center,cube_size, road_color)));
 
+//    Point cube_center2(9.0, 0.0, 0.2);
+//    Point cube_size2(8.0, 8.0, 0.35);
+//    Point inc(0.5, 0.0, 0.35);
+//    world_.addObject(std::unique_ptr<Object>(new Cube(
+//            cube_center2,cube_size2, road_color)));
+//
+//    world_.addObject(std::unique_ptr<Object>(new Cube(
+//            cube_center2 + inc,cube_size2, road_color)));
+//
+//    world_.addObject(std::unique_ptr<Object>(new Cube(
+//            cube_center2 + inc+inc,cube_size2, road_color)));
+//
+//    world_.addObject(std::unique_ptr<Object>(new Cube(
+//            cube_center2 + inc+inc+inc,cube_size2, road_color)));
+
     //add ground
     world_.addGroundLevel(0.0);
 

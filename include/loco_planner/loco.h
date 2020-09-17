@@ -25,7 +25,8 @@ class Loco {
     double robot_radius = 0.25;
     bool soft_goal_constraint = false;
     double w_d = 0.1;   // Smoothness cost weight.
-    double w_c = 10.0;  // Collision cost weight.
+    double w_c = 0.0;  // Collision cost weight.
+    double w_f = 5.0;  // Free cost weight.
     double w_g = 2.5;   // Soft goal cost weight (if using soft goals).
     double w_w = 1.0;   // Waypoint cost weight (if waypoints set).
     double min_collision_sampling_dt = 0.1;
@@ -64,6 +65,11 @@ class Loco {
       const DistanceAndGradientFunctionType& function) {
     distance_and_gradient_function_ = function;
   }
+
+    void setFreeDistanceAndGradientFunction(
+            const DistanceAndGradientFunctionType& function) {
+        free_distance_and_gradient_function_ = function;
+    }
 
   // This should probably return something...
   void solveProblem();
@@ -133,6 +139,9 @@ class Loco {
   // Just the J_c part.
   double computeCollisionCostAndGradient(
       std::vector<Eigen::VectorXd>* gradients) const;
+  // Just the J_f part.
+  double computeFreeCostAndGradient(
+          std::vector<Eigen::VectorXd>* gradients) const;
   // The J_g part if using soft goals.
   double computeGoalCostAndGradient(
       std::vector<Eigen::VectorXd>* gradients) const;
@@ -148,7 +157,7 @@ class Loco {
 
   double computePotentialCostAndGradient(const Eigen::VectorXd& position,
                                          Eigen::VectorXd* gradient) const;
-  double computeFreeCostAndGradient(const Eigen::VectorXd& position,
+  double computeFreePotentialCostAndGradient(const Eigen::VectorXd& position,
                                       Eigen::VectorXd* gradient) const;
 
   double potentialFunction(double distance) const;
@@ -191,6 +200,7 @@ class Loco {
   // Collision cost functions.
   DistanceFunctionType distance_function_;
   DistanceAndGradientFunctionType distance_and_gradient_function_;
+  DistanceAndGradientFunctionType free_distance_and_gradient_function_;
 
   // Most of the configuration settings for the optimization.
   Config config_;
