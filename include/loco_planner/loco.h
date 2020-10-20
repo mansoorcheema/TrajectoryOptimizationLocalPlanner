@@ -26,7 +26,7 @@ class Loco {
     bool soft_goal_constraint = false;
     double w_d = 0.1;   // Smoothness cost weight.
     double w_c = 10.0;  // Collision cost weight.
-    double w_f = 3.0;  // Free cost weight.
+    double w_f = 7;  // Free cost weight.
     double w_g = 2.5;   // Soft goal cost weight (if using soft goals).
     double w_w = 1.0;   // Waypoint cost weight (if waypoints set).
     double min_collision_sampling_dt = 0.1;
