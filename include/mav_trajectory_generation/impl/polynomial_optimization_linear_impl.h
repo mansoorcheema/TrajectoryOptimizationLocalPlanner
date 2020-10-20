@@ -368,10 +368,8 @@ bool PolynomialOptimization<_N>::solveLinear() {
 
   // Compute dp_opt for every dimension.
   for (size_t dimension_idx = 0; dimension_idx < dimension_; ++dimension_idx) {
-    Eigen::VectorXd df =
-        -Rpf * fixed_constraints_compact_[dimension_idx];  // Rpf = Rfp^T
-    free_constraints_compact_[dimension_idx] =
-        solver.solve(df);  // dp = -Rpp^-1 * Rpf * df
+    Eigen::VectorXd df =  -Rpf * fixed_constraints_compact_[dimension_idx];  // Rpf = Rfp^T
+    free_constraints_compact_[dimension_idx] = solver.solve(df);  // dp = -Rpp^-1 * Rpf * df
   }
 
   updateSegmentsFromCompactConstraints();

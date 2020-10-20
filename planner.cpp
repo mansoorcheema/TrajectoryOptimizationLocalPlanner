@@ -63,11 +63,11 @@ int main() {
     // Planner.
     loco_planner::Loco<kN> loco_(kD) ;
 
-    Eigen::Vector3d  v(-7., -1.25, 2);
-    Eigen::Vector3d w(10, -1.822, 1.425);
+    Eigen::Vector3d  v(-7., 1, 1);
+    Eigen::Vector3d w(9, 1, 1.3);
     loco_.setupFromPositions(v, w, 3, 10.0);
 
-    double default_distance_obstacles = 0.0;// unknown area is considered obstacle.
+    double default_distance_obstacles = 0.0;// unkmown area is considered obstacle.
     double default_distance_free = 3.0;// free spacee is atleast that far.
     loco_.setDistanceAndGradientFunction(std::bind(getMapDistanceAndGradientVector,std::placeholders::_1,std::placeholders::_2,esdf_map_, default_distance_obstacles));
     loco_.setFreeDistanceAndGradientFunction(std::bind(getMapDistanceAndGradientVector,std::placeholders::_1,std::placeholders::_2,esdf_free_map_, default_distance_free));
@@ -94,14 +94,20 @@ int main() {
     std::ofstream myfile;
     myfile.open (point_cloud_trajectory, std::ofstream::out | std::ofstream::app);
 
-    Eigen::VectorXd grad_a, gradient;
+    Eigen::VectorXd gradeFree, gradientObs;
+    for (double z=0;z>=-2;z-=0.1) {
+        Eigen::Vector3d position( -1 , 0,z);
+        double obstacle_distance = getMapDistanceAndGradientVector(position, &gradientObs, esdf_map_, 0);
+        std::cout<<"Position:" << z<<" ; obstacle_distance:"<<obstacle_distance<<std::endl;
+    }
 
     for(auto p: position) {
         myfile << p(0) << ";" << p(1) << ";" << p(2) << ";";
         myfile << 0 << ";" << 0 << ";" << 255 << endl;
 
-        double cost_p = loco_.computeFreePotentialCostAndGradient(p.head<3>(), &gradient);
-        std::cout<< cost_p<<std::endl<<std::endl;
+        double cost_free = loco_.computeFreePotentialCostAndGradient(p.head<3>(), &gradeFree);
+        double cost_obs = loco_.computePotentialCostAndGradient(p.head<3>(), &gradientObs);
+        std::cout<<"Position:" << p(0) << "," << p(1) << "," << p(2) <<"; free cost:"<<cost_free<<"; obs cost:"<<cost_obs<<std::endl;
     }
     myfile.close();
     std::cout << "Done!" << std::endl;
