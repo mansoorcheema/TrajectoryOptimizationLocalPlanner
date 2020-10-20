@@ -44,7 +44,7 @@ class EsdfIntegrator {
      * Should mirror (or be smaller than) truncation distance in tsdf
      * integrator.
      */
-    FloatingPoint min_distance_m = 0.01;
+    FloatingPoint min_distance_m = 0.001;
     /// Default distance set for unknown values and values > max_distance_m.
     FloatingPoint default_distance_m = 3.0;
     /**

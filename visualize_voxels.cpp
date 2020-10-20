@@ -74,6 +74,10 @@ bool visualizeVoxels(const EsdfVoxel& voxel, Color* color) {
             //std::cout << voxel.distance << std::endl;
             *color = Color::Green();
             return true;
+        } else if(voxel.distance <= 0) {
+            //std::cout << voxel.distance << std::endl;
+            *color = Color::Gray();
+            return true;
         }
     }
     return false;
