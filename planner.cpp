@@ -64,7 +64,7 @@ int main() {
     loco_planner::Loco<kN> loco_(kD) ;
 
     Eigen::Vector3d  v(-7., 1, 1);
-    Eigen::Vector3d w(9, 1, 1.3);
+    Eigen::Vector3d w(8, 1, 1.3);
     loco_.setupFromPositions(v, w, 3, 10.0);
 
     double default_distance_obstacles = 0.0;// unkmown area is considered obstacle.
