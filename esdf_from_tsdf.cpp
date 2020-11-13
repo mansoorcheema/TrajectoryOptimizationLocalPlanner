@@ -3,27 +3,27 @@
 #include "voxblox/core/voxel.h"
 #include "voxblox/integrator/esdf_integrator.h"
 #include "voxblox/core/esdf_map.h"
-#include "voxblox/integrator/tsdf_integrator.h"
 #include "voxblox/io/layer_io.h"
-#include "voxblox/simulation/simulation_world.h"
-#include "voxblox/utils/evaluation_utils.h"
-#include "voxblox/utils/layer_utils.h"
 
 #include <iostream>
-#include <fstream>
+using namespace voxblox;
 
-using namespace std;
-using namespace voxblox;  // NOLINT
+int main(int argc, char *argv[]) {
 
-int main() {
+    if (argc < 3) {
+        std::cout<<"Usage: esdf_from_tsdf <input_layer> <output_layer>";
+        std::cout<<"input_layer -  Path to load the input TSDF layer"<<std::endl;
+        std::cout<<"output_drivable_layer -  Path to save the ESDF layer"<<std::endl;
+        return -1;
+    }
+
     Layer<TsdfVoxel>::Ptr layer_from_file;
-    io::LoadLayer<TsdfVoxel>("/home/mansoor/tsdf_obstacles_layer.layer", &layer_from_file);
-
-    //save esdf layer
-    // ESDF maps.
+    io::LoadLayer<TsdfVoxel>(argv[1], &layer_from_file);
     EsdfMap::Config esdf_config;
+
     // Same number of voxels per side for ESDF as with TSDF
     esdf_config.esdf_voxels_per_side = layer_from_file->voxels_per_side();
+
     // Same voxel size for ESDF as with TSDF
     esdf_config.esdf_voxel_size = layer_from_file->voxel_size();
 
@@ -35,7 +35,7 @@ int main() {
 
     esdf_integrator.updateFromTsdfLayerBatch();
 
-    const bool esdf_success = io::SaveLayer(esdf_map.getEsdfLayer(), "/home/mansoor/esdf_obstacles_layer.layer");
+    const bool esdf_success = io::SaveLayer(esdf_map.getEsdfLayer(), argv[2]);
 
     if (esdf_success == false) {
         throw std::runtime_error("Failed to save ESDF");

@@ -45,7 +45,8 @@ bool EsdfMap::getDistanceAndGradientAtPosition(
   }
 
   *distance = static_cast<double>(distance_fp);
-  *gradient = gradient_fp.cast<double>();
+  if (gradient)
+    *gradient = gradient_fp.cast<double>();
 
   return success;
 }
