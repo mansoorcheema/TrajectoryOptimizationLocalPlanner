@@ -1,11 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
-project(voxblox_test)
+project(trajectory_planner)
 
 set(CMAKE_CXX_STANDARD 17)
-#set(glog_INCLUDE_DIR /home/mansoor/Downloads/glog-master/build)
-#set(ceres_DIR /home/mansoor/Downloads/ceres-solver-1.14.0/build)
-#set(glog_DIR_HINT /home/mansoor/Downloads/glog-master/build)
-
 find_package(Eigen3 REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(glog REQUIRED)
@@ -13,15 +9,10 @@ find_package(Ceres REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CERES_INCLUDE_DIRS})
-#include_directories(${Eigen3_INCLUDE_DIR} /usr/local/include/eigen3/ ${glog_INCLUDE_DIR})
 include_directories(${EIGEN3_INCLUDE_DIR} /home/mansoor/Downloads/minkindr-master/minkindr/include ${GLOG_INCLUDE_DIR})
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-
-####################
-# SET SOURCE FILES #
-####################
 set("${PROJECT_NAME}_SRCS"
         src/voxblox/alignment/icp.cc
         src/voxblox/core/block.cc
@@ -53,28 +44,21 @@ set("${PROJECT_NAME}_SRCS"
         src/mav_trajectory_generation/timing.cpp
         src/mav_trajectory_generation/trajectory.cpp
         src/mav_trajectory_generation/vertex.cpp
+        src/scenes/BaseScene.cpp
+        src/scenes/SimpleScene.cpp
+        src/semantic_planner/SemanticPlanner.cpp
         )
 
 set(PROTO_DEFNS proto/voxblox/Block.proto proto/voxblox/Layer.proto)
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_DEFNS})
 
 add_library(${PROJECT_NAME}_proto ${PROTO_SRCS} ${PROTO_HDRS})
-
-add_executable(tsdf_from_pc tsdf_from_pc.cpp ${${PROJECT_NAME}_SRCS})
-add_executable(visualize_voxels visualize_voxels.cpp ${${PROJECT_NAME}_SRCS})
+add_executable(generate_tsdf generate_tsdf.cpp ${${PROJECT_NAME}_SRCS})
+add_executable(visualize_esdf_voxels visualize_esdf_voxels.cpp ${${PROJECT_NAME}_SRCS})
 add_executable(esdf_from_tsdf esdf_from_tsdf.cpp ${${PROJECT_NAME}_SRCS})
-add_executable(mapping EsdfMapping.cpp ${${PROJECT_NAME}_SRCS})
 add_executable(planning planner.cpp ${${PROJECT_NAME}_SRCS})
 
-target_link_libraries(tsdf_from_pc Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROJECT_NAME}_proto)
-#target_include_directories(tsdf_from_pc PUBLIC ${EIGEN3_INCLUDE_DIR} ${glog_INCLUDE_DIR})
-
-target_link_libraries(visualize_voxels Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROJECT_NAME}_proto ${CERES_LIBRARIES})
+target_link_libraries(generate_tsdf Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROJECT_NAME}_proto)
+target_link_libraries(visualize_esdf_voxels Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROJECT_NAME}_proto ${CERES_LIBRARIES})
 target_link_libraries(planning Eigen3::Eigen glog::glog protobuf::libprotobuf  ${PROJECT_NAME}_proto ${CERES_LIBRARIES} "stdc++fs")
-#target_include_directories(visualize_voxels PUBLIC ${EIGEN3_INCLUDE_DIR} ${glog_INCLUDE_DIR})
-
 target_link_libraries(esdf_from_tsdf Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROJECT_NAME}_proto)
-#target_include_directories(esdf_from_tsdf PUBLIC ${EIGEN3_INCLUDE_DIR} ${glog_INCLUDE_DIR})
-
-target_link_libraries(mapping Eigen3::Eigen glog::glog protobuf::libprotobuf ${PROTOBUF_LIBRARIES})
-#target_include_directories(mapping PUBLIC ${EIGEN3_INCLUDE_DIR} ${glog_INCLUDE_DIR})
