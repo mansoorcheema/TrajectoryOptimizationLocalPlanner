@@ -26,6 +26,7 @@ cmake .
 make -j4 
 sudo make install
 cd ..
+sudo ldconfig
 #sudo apt-get install libceres-dev -y
 cd ..
 
